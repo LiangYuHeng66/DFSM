@@ -6,8 +6,8 @@ from utils.comm import get_rank, synchronize
 from torch.utils.tensorboard import SummaryWriter
 
 
-def do_train(start_epoch, args, model, train_loader, evaluator0,evaluator1,evaluator2, optimizer,
-             scheduler, checkpointer, trainset):
+def do_train(start_epoch, args, model, train_loader, evaluator, optimizer,
+             scheduler, checkpointer):
 
     log_period = args.log_period
     eval_period = args.eval_period
@@ -18,11 +18,6 @@ def do_train(start_epoch, args, model, train_loader, evaluator0,evaluator1,evalu
     arguments["iteration"] = 0
 
     logger = logging.getLogger("DFSM.train")
-    if get_rank() == 0:
-        logger.info("Validation before training - Epoch: {}".format(-1))
-        #top1 = evaluator0.eval(model.module.eval())
-        #top1 = evaluator1.eval(model.module.eval())
-        #top1 = evaluator2.eval(model.module.eval())
     logger.info('start training')
 
     meters = {
@@ -39,9 +34,7 @@ def do_train(start_epoch, args, model, train_loader, evaluator0,evaluator1,evalu
 
     tb_writer = SummaryWriter(log_dir=args.output_dir)
 
-    best_top1_0 = 0.0
-    best_top1_1 = 0.0
-    best_top1_2 = 0.0
+    best_top1 = 0.0
 
     # train
     for epoch in range(start_epoch, num_epoch + 1):
@@ -99,32 +92,19 @@ def do_train(start_epoch, args, model, train_loader, evaluator0,evaluator1,evalu
                 .format(epoch, time_per_batch,
                         train_loader.batch_size / time_per_batch))
         if epoch % eval_period == 0:
-            logger.info(f"best R1: CUHK {best_top1_0}, ICFG {best_top1_1}, RSTP {best_top1_2}")
+            logger.info("Validation Results - Epoch: {}".format(epoch))
             if get_rank() == 0:
                 logger.info("Validation Results - Epoch: {}".format(epoch))
                 if args.distributed:
-                    top1_0 = evaluator0.eval(model.module.eval())
-                    top1_1 = evaluator1.eval(model.module.eval())
-                    top1_2 = evaluator2.eval(model.module.eval())
+                    top1 = evaluator0.eval(model.module.eval())
                 else:
-                    top1_0 = evaluator0.eval(model.module.eval())
-                    top1_1 = evaluator1.eval(model.module.eval())
-                    top1_2 = evaluator2.eval(model.module.eval())
-                if best_top1_0 < top1_0:
+                    top1 = evaluator0.eval(model.eval())
+                if best_top1 < top1:
                     best_top1_0 = top1_0
                     arguments["epoch"] = epoch
                     #checkpointer.save("best0", **arguments)
-                if best_top1_1 < top1_1:
-                    best_top1_1 = top1_1
-                    arguments["epoch"] = epoch
-                    #checkpointer.save("best1", **arguments)
-                if best_top1_2 < top1_2:
-                    best_top1_2 = top1_2
-                    arguments["epoch"] = epoch
-                    #checkpointer.save("best2", **arguments)
     if get_rank() == 0:
-        #logger.info(f"best R1: {best_top1_0}, {best_top1_1}, {best_top1_2} at epoch {arguments['epoch']}")
-        logger.info(f"best R1:  {best_top1_2} at epoch {arguments['epoch']}")
+        logger.info(f"best R1:  {best_top1} at epoch {arguments['epoch']}")
 
 def do_inference(model, test_img_loader, test_txt_loader):
 
