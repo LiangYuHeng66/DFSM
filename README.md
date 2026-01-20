@@ -1,5 +1,5 @@
 ## Introduction
-The code for DFSM (CVPR 2025).
+The code for DFSM (WWW 2026).
 
 ## Requirements
 we use a single RTX4090 24G GPU for training and evaluation. 
