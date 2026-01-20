@@ -24,12 +24,9 @@ def do_train(start_epoch, args, model, train_loader, evaluator, optimizer,
         "loss": AverageMeter(),
         "TAL_loss": AverageMeter(),
         "id_loss": AverageMeter(),
-        "mlm_loss": AverageMeter(),
         "img_acc": AverageMeter(),
         "txt_acc": AverageMeter(),
         "ot_loss": AverageMeter(),
-        "unc_loss": AverageMeter(),
-        "mlm_acc": AverageMeter()
     }
 
     tb_writer = SummaryWriter(log_dir=args.output_dir)
@@ -55,12 +52,10 @@ def do_train(start_epoch, args, model, train_loader, evaluator, optimizer,
             meters['loss'].update(total_loss.item(), batch_size)
             meters['TAL_loss'].update(ret.get('TAL_loss', 0), batch_size)
             meters['id_loss'].update(ret.get('id_loss', 0), batch_size)
-            meters['mlm_loss'].update(ret.get('mlm_loss', 0), batch_size)
             meters['ot_loss'].update(ret.get('ot_loss', 0), batch_size)
 
             meters['img_acc'].update(ret.get('img_acc', 0), batch_size)
             meters['txt_acc'].update(ret.get('txt_acc', 0), batch_size)
-            meters['mlm_acc'].update(ret.get('mlm_acc', 0), 1)
 
             optimizer.zero_grad()
             total_loss.backward()
@@ -82,7 +77,6 @@ def do_train(start_epoch, args, model, train_loader, evaluator, optimizer,
             if v.avg > 0:
                 tb_writer.add_scalar(k, v.avg, epoch)
 
-
         scheduler.step()
         if get_rank() == 0:
             end_time = time.time()
@@ -98,11 +92,11 @@ def do_train(start_epoch, args, model, train_loader, evaluator, optimizer,
                 if args.distributed:
                     top1 = evaluator0.eval(model.module.eval())
                 else:
-                    top1 = evaluator0.eval(model.eval())
+                    top1 = evaluator0.eval(model.module.eval())
                 if best_top1 < top1:
-                    best_top1_0 = top1_0
+                    best_top1 = top1
                     arguments["epoch"] = epoch
-                    #checkpointer.save("best0", **arguments)
+                    # checkpointer.save("best", **arguments)
     if get_rank() == 0:
         logger.info(f"best R1:  {best_top1} at epoch {arguments['epoch']}")
 

@@ -9,8 +9,6 @@ import time
 import torch.nn as nn
 
 from datasets import build_dataloader
-from datasets.bases import ImageTextMLMDataset
-from datasets.build import build_zero_shot_loader
 from processor.processor_finetune import do_train
 from utils.checkpoint import Checkpointer
 from utils.iotools import save_train_configs
@@ -62,6 +60,17 @@ if __name__ == '__main__':
     train_loader, val_img_loader, val_txt_loader, num_classes = build_dataloader(args)
     model = build_finetune_model(args, num_classes)
     logger.info('Total params: %2.fM' % (sum(p.numel() for p in model.parameters()) / 1000000.0))
+
+    if args.finetune:
+        logger.info("loading {} model".format(args.finetune))
+        param_dict = torch.load(args.finetune, map_location='cpu', weights_only=True)['model']
+        # param_dict = torch.load(args.finetune, map_location='cpu')['model']
+        for k in list(param_dict.keys()):
+            refine_k = k.replace('module.','')
+            param_dict[refine_k] = param_dict[k].detach().clone()
+            del param_dict[k]
+        model.load_state_dict(param_dict, False)
+
     model.to(device)
 
     if args.distributed:
@@ -77,9 +86,8 @@ if __name__ == '__main__':
 
     is_master = get_rank() == 0
     checkpointer = Checkpointer(model, optimizer, scheduler, args.output_dir, is_master)
-    evaluator0 = Evaluator(val_img_loader0, val_txt_loader0)
-    evaluator1 = Evaluator(val_img_loader1, val_txt_loader1)
-    evaluator2 = Evaluator(val_img_loader2, val_txt_loader2)
+    evaluator = Evaluator(val_img_loader, val_txt_loader)
+
 
     start_epoch = 1
     if args.resume:

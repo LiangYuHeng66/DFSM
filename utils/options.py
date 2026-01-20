@@ -13,15 +13,11 @@ def get_args():
     parser.add_argument("--resume", default=False, action='store_true')
     parser.add_argument("--resume_ckpt_file", default="", help='resume from ...')
 
-    parser.add_argument("--finetune", type=str, default="")
-    parser.add_argument("--pretrain", type=str, default="")
-    parser.add_argument("--nam", default=True, action='store_true')
-
     ######################## model general settings ########################
-    parser.add_argument("--pretrain_choice", default='ViT-B/16') # whether use pretrained model
+    parser.add_argument("--pretrain_choice", default='ViT-B/16')
     parser.add_argument("--temperature", type=float, default=0.02, help="initial temperature value, if 0, don't use temperature")
     parser.add_argument("--img_aug", default=True, action='store_true')
-    parser.add_argument("--txt_aug", default=True, action='store_true', help="是否使用文本增强")
+    parser.add_argument("--txt_aug", default=True, action='store_true')
 
     ## cross modal transfomer setting
     parser.add_argument("--cmt_depth", type=int, default=4, help="cross modal transformer self attn layers")
@@ -31,7 +27,7 @@ def get_args():
     parser.add_argument("--MLM", default=False, action='store_true', help="whether to use Mask Language Modeling dataset")
 
     ######################## loss settings ########################
-    parser.add_argument("--loss_names", default='TAL', help="which loss to use ['mlm', 'cmpm', 'id', 'itc', 'sdm']")
+    parser.add_argument("--loss_names", default='TAL', help="loss")
     parser.add_argument("--mlm_loss_weight", type=float, default=1.0, help="mlm loss weight")
     parser.add_argument("--id_loss_weight", type=float, default=1.0, help="id loss weight")
     
@@ -54,7 +50,7 @@ def get_args():
     parser.add_argument("--beta", type=float, default=0.999)
     
     ######################## scheduler ########################
-    parser.add_argument("--num_epoch", type=int, default=60)
+    parser.add_argument("--num_epoch", type=int, default=30)
     parser.add_argument("--milestones", type=int, nargs='+', default=(20, 40))
     parser.add_argument("--gamma", type=float, default=0.1)
     parser.add_argument("--warmup_factor", type=float, default=0.1)
@@ -76,7 +72,6 @@ def get_args():
 
     parser.add_argument('--ct_gamma', type=float, default=1)
 
-
     parser.add_argument('--img_select_ratio', type=float, default=0.5)
     parser.add_argument('--img_aggr_ratio', type=float, default=0.5)
 
@@ -84,7 +79,9 @@ def get_args():
     parser.add_argument("--margin", default=0.1, type=float)
     parser.add_argument("--erfa", default=0.5, type=float)
 
-    parser.add_argument('--i_feats_fg_gamma', type=float, default=0.5)
+    parser.add_argument('--i_feats_fg_gamma', type=float, default=0.9)
+
+    parser.add_argument("--finetune", type=str, default="")
 
     args = parser.parse_args()
 

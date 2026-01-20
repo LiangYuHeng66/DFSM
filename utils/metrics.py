@@ -107,7 +107,7 @@ class Evaluator():
 
 
         sims_dict = {
-            'G': similarity,
+            'Global': similarity,
         }
 
         table = PrettyTable(["task", "R1", "R5", "R10", "mAP", "mINP", "rSum"])

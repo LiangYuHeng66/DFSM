@@ -8,7 +8,7 @@ from torch.utils.data.distributed import DistributedSampler
 
 from utils.comm import get_world_size
 
-from .bases import FilterDataset, ImageDataset, TextDataset, ImageTextDataset, ImageTextMLMDataset
+from .bases import ImageDataset, TextDataset, ImageTextDataset, ImageTextMLMDataset
 
 from .cuhkpedes import CUHKPEDES
 from .icfgpedes import ICFGPEDES

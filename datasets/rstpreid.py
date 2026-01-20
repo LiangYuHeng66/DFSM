@@ -15,7 +15,7 @@ class RSTPReid(BaseDataset):
     URL: http://arxiv.org/abs/2109.05534
 
     Dataset statistics:
-    # identities: 4101 
+    # identities: 4101
     """
     dataset_dir = 'RSTPReid'
 
@@ -50,7 +50,6 @@ class RSTPReid(BaseDataset):
                 val_annos.append(anno)
         return train_annos, test_annos, val_annos
 
-  
     def _process_anno(self, annos: List[dict], training=False):
         pid_container = set()
         if training:
@@ -60,7 +59,7 @@ class RSTPReid(BaseDataset):
                 pid = int(anno['id'])
                 pid_container.add(pid)
                 img_path = op.join(self.img_dir, anno['img_path'])
-                captions = anno['captions'] # caption list
+                captions = anno['captions']  # caption list
                 for caption in captions:
                     dataset.append((pid, image_id, img_path, caption))
                 image_id += 1
@@ -80,7 +79,7 @@ class RSTPReid(BaseDataset):
                 img_path = op.join(self.img_dir, anno['img_path'])
                 img_paths.append(img_path)
                 image_pids.append(pid)
-                caption_list = anno['captions'] # caption list
+                caption_list = anno['captions']  # caption list
                 for caption in caption_list:
                     captions.append(caption)
                     caption_pids.append(pid)
@@ -91,7 +90,6 @@ class RSTPReid(BaseDataset):
                 "captions": captions
             }
             return dataset, pid_container
-
 
     def _check_before_run(self):
         """Check if all files are available before going deeper"""

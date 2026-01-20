@@ -26,25 +26,10 @@ class DFSM(nn.Module):
             nn.init.normal_(self.classifier.weight.data, std=0.001)
             nn.init.constant_(self.classifier.bias.data, val=0.0)
 
-
     def _set_task(self):
         loss_names = self.args.loss_names
         self.current_task = [l.strip() for l in loss_names.split('+')]
         print(f'Training Model with {self.current_task} tasks')
-    
-    
-    def cross_former(self, q, k, v):
-        x = self.cross_attn(
-                self.ln_pre_t(q),
-                self.ln_pre_i(k),
-                self.ln_pre_i(v),
-                need_weights=False)[0]
-        x = x.permute(1, 0, 2)  # NLD -> LND
-        x = self.cross_modal_transformer(x,"text")
-        x = x.permute(1, 0, 2)  # LND -> NLD
-
-        x = self.ln_post(x)
-        return x
 
     def encode_image(self, image):
         image_feats,att_score = self.base_model.encode_image(image)
@@ -77,17 +62,13 @@ class DFSM(nn.Module):
 
         logit_scale = self.logit_scale
 
-        #
         if 'ct' in self.current_task:
             ct_loss = compute_ct_loss_pairwise(image_feats.float(), text_feats.float())
             ct_loss = ct_loss * self.args.ct_gamma
             ret.update({'ot_loss': ct_loss})
 
-
-
         if 'TAL' in self.current_task:
             ret.update({'TAL_loss':objectives.compute_TAL(i_feats_new, t_feats, batch['pids'], self.args.tau ,self.args.margin)})
-
 
         if 'id' in self.current_task:
             image_logits = self.classifier(i_feats_new.half()).float()
