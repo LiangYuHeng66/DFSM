@@ -59,19 +59,10 @@ if __name__ == '__main__':
     save_train_configs(args.output_dir, args)
 
     # get image-text pair datasets dataloader
-    trainset ,train_loader, val_img_loader0, val_txt_loader0, val_img_loader1, val_txt_loader1, val_img_loader2, val_txt_loader2, num_classes = build_zero_shot_loader(args,finetune=True)
+    train_loader, val_img_loader, val_txt_loader, num_classes = build_dataloader(args)
     model = build_finetune_model(args, num_classes)
     logger.info('Total params: %2.fM' % (sum(p.numel() for p in model.parameters()) / 1000000.0))
-    if args.finetune:
-        logger.info("loading {} model".format(args.finetune))
-        param_dict = torch.load(args.finetune, map_location='cpu')['model']
-        for k in list(param_dict.keys()):
-            refine_k = k.replace('module.','')
-            param_dict[refine_k] = param_dict[k].detach().clone()
-            del param_dict[k]
-        model.load_state_dict(param_dict, False)
-    model.cuda()
-    model = nn.DataParallel(model)
+    model.to(device)
 
     if args.distributed:
         model = torch.nn.parallel.DistributedDataParallel(
@@ -96,5 +87,5 @@ if __name__ == '__main__':
         start_epoch = checkpoint['epoch']
 
     
-    do_train(start_epoch, args, model, train_loader, evaluator0,evaluator1,evaluator2, optimizer, scheduler, checkpointer, trainset)
+    do_train(start_epoch, args, model, train_loader, evaluator, optimizer, scheduler, checkpointer)
 
