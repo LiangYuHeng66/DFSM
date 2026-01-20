@@ -1,5 +1,5 @@
 ## Introduction
-The full source code for DFSM will be made publicly available upon the paper's acceptance.
+The code for DFSM (CVPR 2025).
 
 ## Requirements
 we use a single RTX4090 24G GPU for training and evaluation. 
