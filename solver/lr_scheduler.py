@@ -62,7 +62,7 @@ class LRSchedulerWithWarmup(_LRScheduler):
             ]
 
         epoch_ratio = (self.last_epoch - self.warmup_epochs) / (
-            30 - self.warmup_epochs
+            self.total_epochs - self.warmup_epochs
         )
 
         if self.mode == "exp":
