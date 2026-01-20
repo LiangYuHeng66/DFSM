@@ -43,4 +43,4 @@ sh run.sh
 
 
 ## Acknowledgments
-Some components of this code implementation are adopted from [IRRA](https://github.com/anosorae/IRRA) and [MLLM4Text-ReID](https://github.com/WentaoTan/MLLM4Text-ReID). We sincerely appreciate for their contributions.
+Some components of this code implementation are adopted from [IRRA](https://github.com/anosorae/IRRA), [MLLM4Text-ReID](https://github.com/WentaoTan/MLLM4Text-ReID), and [HAM](https://github.com/sssaury/HAM). We sincerely appreciate for their contributions.
